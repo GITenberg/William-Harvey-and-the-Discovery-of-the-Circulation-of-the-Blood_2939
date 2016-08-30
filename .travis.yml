@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: gMhAHKqECyS3fUqY9W0m7W8vyGOD0GzpTJLX1iEooeCEFqxyPfVi6G3la+h5QGBUm4H3YBZ/ydOyE7fYb+5F3ExJuLQIf3UopjmEGK1Fe3PxrOrs2t/w1cSK8LigCyROuJhAqXQCPOsnLyy666uAvW19eU8VEHmsPzIQsvrxCK9tn1ZsndhqFnlgSLoEQCqxf8jJu4aSqBv56A8BjKQA0wVHb+SBHevODNVRuGd5ahzHrHX5qUzmrR3ZDd6LZ0A4smoVdozLw83eD5D4LKNed4QCHibXG9c07dYnVWp0f/g61Ijb/0a0I8Q4baAnx6lSKnFfeWPHhD9k1jcMM4zpF28klDjmgTHamylKiWdJiAh2gMHtwBI6l+onicOnjCqA6HSlr5CkYxV8JNHetn/l6PYlgl5o4nkfHXmcwMdQ88qEXQKP9boy3n8JY5f9N3zbq6o8xrR6vVYeI4nrLw1GVYuUWZ/y/hKR/vMASqN57bAA8aG1xDeZsqQi/+/IMSX7LtqARSLixXJ4ZkwzgKhgtyTJ2IiRpEmRsrNXSE4AMji3ItXAOxTEV+CwZn2b3TUrjVMNil1uN7y9/p+2iPt3KPAVeocdzHif9pBcGoQTTugeJRhMEwIdAgl1kFCWwrAEvs999ufTsLqhkyb2hoKMUJK+AR4ncaPCHgGXsZP7MrY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/William-Harvey-and-the-Discovery-of-the-Circulation-of-the-Blood_2939
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
